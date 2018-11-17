@@ -36,6 +36,6 @@ public class ParqueaderoActivity extends AppCompatActivity {
             parker_direccion.setText(parqueadero.getDireccion());
             parker_horario.setText(parqueadero.horario());
         }else
-            finish();
+            ;
     }
 }

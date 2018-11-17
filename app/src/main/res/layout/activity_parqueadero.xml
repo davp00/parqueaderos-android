@@ -28,6 +28,7 @@
         android:layout_marginStart="56dp"
         android:layout_marginTop="56dp"
         android:text="NOMBRE DEL PARQUEADERO"
+        android:textAlignment="center"
         android:textColor="@color/midnight_blue"
         android:textStyle="bold"
         android:textSize="20sp"

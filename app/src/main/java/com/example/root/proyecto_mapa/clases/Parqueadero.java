@@ -1,5 +1,7 @@
 package com.example.root.proyecto_mapa.clases;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
 
 public class Parqueadero implements Serializable {
@@ -7,6 +9,8 @@ public class Parqueadero implements Serializable {
     private String direccion;
     private String hora_inicio = "";
     private String hora_fin = "";
+    private transient LatLng pos = null;
+    private String tag;
 
     public Parqueadero()
     {
@@ -71,5 +75,21 @@ public class Parqueadero implements Serializable {
 
     public void setHora_fin(String hora_fin) {
         this.hora_fin = hora_fin;
+    }
+
+    public LatLng getPos() {
+        return pos;
+    }
+
+    public void setPos(double v1 , double v2) {
+        this.pos = new LatLng(v1,v2);
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

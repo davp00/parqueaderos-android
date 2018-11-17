@@ -11,7 +11,7 @@
         android:layout_height="50dp"
         android:id="@+id/imagen"
         android:layout_marginRight="10dp"
-        android:src="@mipmap/ic_launcher_round"
+        android:src="@drawable/ic_local_parking_black_24dp"
         android:contentDescription="IMAGEN" />
 
     <LinearLayout
@@ -25,7 +25,7 @@
             android:id="@+id/txt_nombre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:textColor="@color/midnight_blue"
             android:textSize="15sp"
             android:text="NOMBRE_DEL_PARQUEADERO"
             android:textStyle="bold"/>
@@ -33,6 +33,7 @@
         <TextView
             android:id="@+id/txt_direccion"
             android:layout_marginTop="5dp"
+            android:textColor="@color/midnight_blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="DIRECCION_DEL_PARQUEADERO"/>
