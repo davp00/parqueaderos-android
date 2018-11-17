@@ -5,24 +5,40 @@ import java.io.Serializable;
 public class Parqueadero implements Serializable {
     private String nombre;
     private String direccion;
-    private String hora_inicio  = "";
-    private String hora_fin     = "";
+    private String hora_inicio = "";
+    private String hora_fin = "";
 
     public Parqueadero()
     {
-
+        nombre      = "";
+        direccion   = "";
+        hora_inicio = "";
+        hora_fin    = "";
     }
 
     public Parqueadero(String nombre)
     {
         this.nombre = nombre;
+        direccion   = "";
+    }
+
+    public Parqueadero(String nombre, String direccion, String hora_inicio, String hora_fin) {
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.hora_inicio = hora_inicio;
+        this.hora_fin = hora_fin;
+    }
+
+    public Parqueadero(String nombre, String direccion) {
+        this.nombre = nombre;
+        this.direccion = direccion;
     }
 
     public String horario()
     {
         if ( hora_inicio.equals(""))
-            return "24 Horas";
-        return hora_inicio + " hasta " + hora_fin + ".";
+            return "HORARIO: 24 Horas";
+        return "HORARIO: "+hora_inicio + " hasta " + hora_fin + ".";
     }
 
     public String getNombre() {
@@ -34,7 +50,7 @@ public class Parqueadero implements Serializable {
     }
 
     public String getDireccion() {
-        return direccion;
+        return "DIRECCION: " + direccion;
     }
 
     public void setDireccion(String direccion) {

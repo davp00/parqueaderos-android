@@ -37,6 +37,7 @@ implements View.OnClickListener{
     public void onBindViewHolder(@NonNull ParqueaderoViewHolder holder, int i) {
         Parqueadero parqueadero = this.parqueaderos.get(i);
         holder.txt_nombre.setText(parqueadero.getNombre());
+        holder.txt_direccion.setText(parqueadero.getDireccion());
     }
 
     @Override
@@ -60,10 +61,12 @@ implements View.OnClickListener{
 
     public class ParqueaderoViewHolder extends RecyclerView.ViewHolder {
         TextView txt_nombre;
+        TextView txt_direccion;
 
         public ParqueaderoViewHolder(@NonNull View vista) {
             super(vista);
             txt_nombre = (TextView) vista.findViewById(R.id.txt_nombre);
+            txt_direccion = (TextView) vista.findViewById(R.id.txt_direccion);
         }
     }
 }
