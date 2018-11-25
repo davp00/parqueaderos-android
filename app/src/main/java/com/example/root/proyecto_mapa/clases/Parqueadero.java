@@ -1,5 +1,8 @@
 package com.example.root.proyecto_mapa.clases;
 
+import android.location.Location;
+
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
@@ -91,5 +94,23 @@ public class Parqueadero implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+
+
+    public static boolean EnCirculo(Circle circle, LatLng point)
+    {
+        double r = circle.getRadius();
+        LatLng center = circle.getCenter();
+        double cX = center.latitude;
+        double cY = center.longitude;
+        double pX = point.latitude;
+        double pY = point.longitude;
+
+        float[] results = new float[1];
+
+        Location.distanceBetween(cX, cY, pX, pY, results);
+
+        return results[0] < r;
     }
 }

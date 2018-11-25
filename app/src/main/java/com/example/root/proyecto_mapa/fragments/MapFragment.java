@@ -1,14 +1,20 @@
 package com.example.root.proyecto_mapa.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +26,7 @@ import com.example.root.proyecto_mapa.R;
 import com.example.root.proyecto_mapa.clases.DataParqueaderos;
 import com.example.root.proyecto_mapa.clases.Parqueadero;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +34,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -43,8 +52,8 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback
-, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener,
-        LocationListener{
+        , GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener,
+        LocationListener {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -61,6 +70,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     // PARA LAS LOCACIONES
     protected LocationManager locationManager;
     protected LocationListener locationListener;
+    protected LatLng pos;
+    protected Location location;
 
 
     private OnFragmentInteractionListener mListener;
@@ -100,14 +111,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mView =  inflater.inflate(R.layout.fragment_map, container, false);
-
-
+        mView = inflater.inflate(R.layout.fragment_map, container, false);
         btn_encender_gps = (Button) mView.findViewById(R.id.btn_encender_gps);
-
-
-
-
         return mView;
     }
 
@@ -115,8 +120,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mapView = (MapView) mView.findViewById(R.id.map);
-        if ( mapView != null)
-        {
+        if (mapView != null) {
             mapView.onCreate(null);
             mapView.onResume();
             mapView.getMapAsync(this);
@@ -146,7 +150,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize( getContext() );
+        MapsInitializer.initialize(getContext());
         mGoogleMap = googleMap;
 
         LatLng posInicial = new LatLng(11.2316915, -74.2170733);
@@ -157,11 +161,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
         parqueaderos = DataParqueaderos.getParqueaderos();
 
-        for (int a = 0 ; a < parqueaderos.size() ; a++)
-        {
+        for (int a = 0; a < parqueaderos.size(); a++) {
             Parqueadero park = parqueaderos.get(a);
-            if ( park.getPos() != null)
-            {
+            if (park.getPos() != null) {
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(park.getPos()).title(park.getNombre()));
                 park.setTag(String.valueOf(a));
                 marker.setTag(park.getTag());
@@ -176,7 +178,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
         });
 
 
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(posInicial,zoom));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(posInicial, zoom));
     }
 
     @Override
@@ -206,17 +208,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     }
 
 
-
-
-
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
 
-    public void on_click_encender_gps()
-    {
+    public void on_click_encender_gps() {
         this.mGoogleMap.clear();
+        this.pos = new LatLng(11.2414655,-74.2126184);
+        Circle circle = mGoogleMap.addCircle(new CircleOptions().center(this.pos)
+                        .radius(500).strokeColor(Color.GRAY).fillColor(Color.TRANSPARENT));
+
+        for (int a = 0; a < parqueaderos.size(); a++)
+        {
+            Parqueadero park = parqueaderos.get(a);
+            if (Parqueadero.EnCirculo(circle, park.getPos()))
+            {
+                Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(park.getPos()).title(park.getNombre()));
+                park.setTag(String.valueOf(a));
+                marker.setTag(park.getTag());
+            }
+        }
+
     }
+
+
 }
