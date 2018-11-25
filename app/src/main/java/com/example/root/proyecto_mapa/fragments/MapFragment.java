@@ -1,6 +1,7 @@
 package com.example.root.proyecto_mapa.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -52,26 +53,25 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback
-        , GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener,
-        LocationListener {
+        , GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private String mParam1;
-    private String mParam2;
+
 
     protected GoogleMap mGoogleMap;
     protected MapView mapView;
     protected View mView;
-    protected Button btn_encender_gps;
+    protected Button btn_accion;
     protected ArrayList<Parqueadero> parqueaderos;
 
     // PARA LAS LOCACIONES
-    protected LocationManager locationManager;
-    protected LocationListener locationListener;
     protected LatLng pos;
-    protected Location location;
+
+
+    protected double radio = 1000;
+    protected boolean sw_gps = false;
 
 
     private OnFragmentInteractionListener mListener;
@@ -99,20 +99,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_map, container, false);
-        btn_encender_gps = (Button) mView.findViewById(R.id.btn_encender_gps);
+        btn_accion = (Button) mView.findViewById(R.id.btn_encender_gps);
         return mView;
     }
 
@@ -161,19 +152,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
         parqueaderos = DataParqueaderos.getParqueaderos();
 
-        for (int a = 0; a < parqueaderos.size(); a++) {
-            Parqueadero park = parqueaderos.get(a);
-            if (park.getPos() != null) {
-                Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(park.getPos()).title(park.getNombre()));
-                park.setTag(String.valueOf(a));
-                marker.setTag(park.getTag());
-            }
-        }
+        agregarMarcadores();
 
-        btn_encender_gps.setOnClickListener(new View.OnClickListener() {
+        btn_accion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                on_click_encender_gps();
+                if ( ! sw_gps )
+                    on_click_encender_gps();
+                else
+                    agregarMarcadores();
+
+                sw_gps = ! sw_gps;
             }
         });
 
@@ -183,7 +172,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Toast.makeText(getContext(), "Qlitos", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "", Toast.LENGTH_SHORT).show();
         return false;
     }
 
@@ -202,12 +191,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
         startActivity(verParqueadero);
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -216,9 +199,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     public void on_click_encender_gps() {
         this.mGoogleMap.clear();
+        btn_accion.setText("Mostrar todos los parqueaderos");
         this.pos = new LatLng(11.2414655,-74.2126184);
         Circle circle = mGoogleMap.addCircle(new CircleOptions().center(this.pos)
-                        .radius(500).strokeColor(Color.GRAY).fillColor(Color.TRANSPARENT));
+                        .radius(radio).strokeColor(Color.GRAY).fillColor(Color.TRANSPARENT));
 
         for (int a = 0; a < parqueaderos.size(); a++)
         {
@@ -233,5 +217,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     }
 
+    @SuppressLint("MissingPermission")
+    private void agregarMarcadores()
+    {
+        this.btn_accion.setText("ENCENDER GPS");
 
+        activar();
+
+        this.mGoogleMap.clear();
+        for (int a = 0; a < parqueaderos.size(); a++) {
+            Parqueadero park = parqueaderos.get(a);
+            if (park.getPos() != null) {
+                Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(park.getPos()).title(park.getNombre()));
+                park.setTag(String.valueOf(a));
+                marker.setTag(park.getTag());
+            }
+        }
+    }
+
+
+
+    private void activar()
+    {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED)
+        {
+            Toast.makeText(getContext(), "OKKKKKK ", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
