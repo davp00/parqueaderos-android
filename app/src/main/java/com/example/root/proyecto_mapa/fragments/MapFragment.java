@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationListener;
+
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -27,6 +31,7 @@ import com.example.root.proyecto_mapa.R;
 import com.example.root.proyecto_mapa.clases.DataParqueaderos;
 import com.example.root.proyecto_mapa.clases.Parqueadero;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,20 +45,14 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MapFragment extends Fragment implements OnMapReadyCallback
-        , GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
+        , GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener ,
+        LocationListener, ActivityCompat.OnRequestPermissionsResultCallback{
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -68,7 +67,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     // PARA LAS LOCACIONES
     protected LatLng pos;
+    protected LocationManager locationManager;
+    protected LocationRequest request;
 
+    private FusedLocationProviderClient mFusedLocationClient;
 
     protected double radio = 1000;
     protected boolean sw_gps = false;
@@ -191,6 +193,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
         startActivity(verParqueadero);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -200,7 +207,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     public void on_click_encender_gps() {
         this.mGoogleMap.clear();
         btn_accion.setText("Mostrar todos los parqueaderos");
-        this.pos = new LatLng(11.2414655,-74.2126184);
+
+        activar();
+
         Circle circle = mGoogleMap.addCircle(new CircleOptions().center(this.pos)
                         .radius(radio).strokeColor(Color.GRAY).fillColor(Color.TRANSPARENT));
 
@@ -222,7 +231,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
     {
         this.btn_accion.setText("ENCENDER GPS");
 
-        activar();
 
         this.mGoogleMap.clear();
         for (int a = 0; a < parqueaderos.size(); a++) {
@@ -239,10 +247,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback
 
     private void activar()
     {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED)
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                123
+        );
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(), "First enable LOCATION ACCESS in settings.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        if ( location != null)
         {
-            Toast.makeText(getContext(), "OKKKKKK ", Toast.LENGTH_SHORT).show();
+            this.pos = new LatLng(location.getLatitude(), location.getLongitude());
+        }else
+        {
+            this.pos = new LatLng(11.2414655,-74.2126184);
         }
     }
 }
